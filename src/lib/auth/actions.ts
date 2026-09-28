@@ -27,7 +27,7 @@ export async function signUpAction(formData: FormData) {
 
   const supabase = await createServerSupabaseClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -44,6 +44,16 @@ export async function signUpAction(formData: FormData) {
 
   if (error) {
     redirect("/inscription?error=" + encodeURIComponent(translateAuthError(error.message)));
+  }
+
+  // Tant que la confirmation par email est activée côté Supabase, signUp()
+  // ne crée aucune session (data.session est null) : rediriger vers
+  // /espace échouerait silencieusement (le proxy renvoie un utilisateur
+  // sans session vers /connexion, sans aucun message). On affiche donc un
+  // écran "vérifie ta boîte mail" au lieu de faire comme si le compte était
+  // déjà utilisable.
+  if (!data.session) {
+    redirect("/inscription/verifie-ton-email?email=" + encodeURIComponent(email));
   }
 
   redirect("/espace");
@@ -100,6 +110,9 @@ function translateAuthError(message: string) {
   }
   if (message.includes("Invalid login credentials")) {
     return "Email ou mot de passe incorrect.";
+  }
+  if (message.includes("Email not confirmed")) {
+    return "Confirme d'abord ton email en cliquant sur le lien reçu par email avant de te connecter.";
   }
   if (message.includes("Password should be")) {
     return "Le mot de passe doit faire au moins 8 caractères.";
