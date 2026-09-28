@@ -195,7 +195,14 @@ export async function getTeacherSubjects(supabase: SupabaseClient, teacherId: st
 // `teacher_profiles.country` marcherait aussi, mais sur un jeu de données
 // encore petit une liste fixe évite un menu qui se vide/change sans arrêt ;
 // à revisiter une fois qu'il y a un volume réel d'enseignants.
-export const COUNTRY_OPTIONS = ["France", "Belgique", "Suisse"];
+export const COUNTRY_OPTIONS = [
+  "France",
+  "Belgique",
+  "Suisse",
+  "Canada",
+  "Royaume-Uni",
+  "Sénégal",
+];
 
 export type AvailabilityRow = {
   weekday: number;
